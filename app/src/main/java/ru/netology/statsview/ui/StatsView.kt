@@ -105,25 +105,27 @@ open class StatsView @JvmOverloads constructor(
         }
         startAngle = -90F
         data.forEachIndexed { index, datum ->
-            val angle = datum * 360F
-            paint.color = colors.getOrElse(index) { generateRandomColor() }
-            canvas.drawArc(
-                oval,
-                startAngle + progress * 360, // + progress * 360 Решение HW Rotation
-                angle * progress,
-                false,
-                paint
-            )
-            startAngle += angle
+            if (progress < 0) return@forEachIndexed // Решение HW Sequential*
+            else {
+                val angle = datum * 360F
+                paint.color = colors.getOrElse(index) { generateRandomColor() } // FIXME: Random дает мерцание при data.size > colors.size
+                canvas.drawArc(
+                    oval,
+                    startAngle,
+                    angle * if (progress <= datum) progress / datum else 1F, // if (progress <= datum) progress / datum else 1F Решение HW Sequential*
+                    false,
+                    paint
+                )
+                progress -= datum // Решение HW Sequential*
+                startAngle += angle
+            }
         }
 
-        if (progress > 0.97F) { // Точка добавляется в конце анимации
-            paint.color = colors[0] // Взятие исходного цвета
-            canvas.drawPoint(center.x,center.y - radius, paint) // Добавление замыкающей точки HV Dot
-        }
+        paint.color = colors[0] // Взятие исходного цвета
+        canvas.drawPoint(center.x,center.y - radius, paint) // Добавление замыкающей точки HV Dot
 
         canvas.drawText(
-            "%.2f%%".format(data.sum() * 100F), // Распределение значений всегда даст 100% HV Smart StatsView
+            "%.2f%%".format(data.sum() * 100F),
             center.x,
             center.y + textPaint.textSize / 4,
             textPaint

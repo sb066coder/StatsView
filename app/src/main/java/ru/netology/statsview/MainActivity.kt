@@ -22,9 +22,10 @@ class MainActivity : AppCompatActivity() {
         view.postDelayed({
             view.data = listOf(
                 0.25F,
+                0.15F,
                 0.25F,
-                0.25F,
-                0.25F
+                0.1F,
+                0.05F
             )
         }, 100)
 
