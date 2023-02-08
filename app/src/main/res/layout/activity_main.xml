@@ -24,7 +24,7 @@
         app:color2="#19D7C3"
         app:color3="#FDDA39"
         app:color4="#FC1966"
-        app:animMode="sequential"
+        app:animMode="bidirectional"
         android:layout_gravity="center"/>
 
 

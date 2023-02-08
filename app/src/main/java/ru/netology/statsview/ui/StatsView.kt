@@ -137,11 +137,31 @@ open class StatsView @JvmOverloads constructor(
                         startAngle += angle
                     }
                 }
+                2 -> { // Решение HW Bidirectional*
+                    val angle = datum * 360F
+                    paint.color =
+                        colors.getOrElse(index) { generateRandomColor() } // FIXME: Random дает мерцание при data.size > colors.size
+                    canvas.drawArc(
+                        oval,
+                        startAngle + angle / 2 * (1 - progress),
+                        angle * progress,
+                        false,
+                        paint
+                    )
+                    startAngle += angle
+                }
             }
         }
 
-        paint.color = colors[0] // Взятие исходного цвета
-        canvas.drawPoint(center.x,center.y - radius, paint) // Добавление замыкающей точки HV Dot
+
+        if (animMode < 2) { // FIXME: Переделать с возможностью смещения точки в начало первой дуги
+            paint.color = colors[0] // Взятие исходного цвета
+            canvas.drawPoint(
+                center.x,
+                center.y - radius,
+                paint
+            ) // Добавление замыкающей точки HV Dot
+        }
 
         canvas.drawText(
             "%.2f%%".format(data.sum() * 100F),
