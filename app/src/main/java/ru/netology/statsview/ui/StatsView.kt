@@ -32,6 +32,7 @@ open class StatsView @JvmOverloads constructor(
     private var colors = emptyList<Int>()
     private var progress = 0F
     private var valueAnimator: ValueAnimator? = null
+    private var animMode = 0
     init {
         context.withStyledAttributes(attributeSet, R.styleable.StatsView) {
             textSize = getDimension(R.styleable.StatsView_textSize, textSize)
@@ -42,6 +43,7 @@ open class StatsView @JvmOverloads constructor(
                 getColor(R.styleable.StatsView_color3, generateRandomColor()),
                 getColor(R.styleable.StatsView_color4, generateRandomColor()),
             )
+            animMode = getInteger(R.styleable.StatsView_animMode, 0) // Решение HW Attributes*
         }
     }
 
@@ -105,19 +107,36 @@ open class StatsView @JvmOverloads constructor(
         }
         startAngle = -90F
         data.forEachIndexed { index, datum ->
-            if (progress < 0) return@forEachIndexed // Решение HW Sequential*
-            else {
-                val angle = datum * 360F
-                paint.color = colors.getOrElse(index) { generateRandomColor() } // FIXME: Random дает мерцание при data.size > colors.size
-                canvas.drawArc(
-                    oval,
-                    startAngle,
-                    angle * if (progress <= datum) progress / datum else 1F, // if (progress <= datum) progress / datum else 1F Решение HW Sequential*
-                    false,
-                    paint
-                )
-                progress -= datum // Решение HW Sequential*
-                startAngle += angle
+            when (animMode) { // Решение HW Attributes*
+                0 -> {
+                    val angle = datum * 360F
+                    paint.color =
+                        colors.getOrElse(index) { generateRandomColor() } // FIXME: Random дает мерцание при data.size > colors.size
+                    canvas.drawArc(
+                        oval,
+                        startAngle,
+                        angle * progress,
+                        false,
+                        paint
+                    )
+                    startAngle += angle
+                }
+                1 -> {
+                    if (progress < 0) return@forEachIndexed // Решение HW Sequential*
+                    else {
+                        val angle = datum * 360F
+                        paint.color = colors.getOrElse(index) { generateRandomColor() } // FIXME: Random дает мерцание при data.size > colors.size
+                        canvas.drawArc(
+                            oval,
+                            startAngle,
+                            angle * if (progress <= datum) progress / datum else 1F, // if (progress <= datum) progress / datum else 1F Решение HW Sequential*
+                            false,
+                            paint
+                        )
+                        progress -= datum // Решение HW Sequential*
+                        startAngle += angle
+                    }
+                }
             }
         }
 
